@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tasks – GreenScape Assist</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="app-page">
+
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-inner">
+        <div>
+          <h1 class="header-title">Tasks</h1>
+          <p class="header-sub" id="taskCount">Loading...</p>
+        </div>
+      </div>
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabPending" onclick="switchTab('pending')">
+          Pending <span class="tab-count" id="pendingCount">0</span>
+        </button>
+        <button class="tab-btn" id="tabCompleted" onclick="switchTab('completed')">
+          Completed <span class="tab-count" id="completedCount">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-scroll">
+      <div id="taskList" class="task-list"></div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <a href="garden.html" class="nav-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Garden</span>
+      </a>
+      <a href="tasks.html" class="nav-item active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Tasks</span>
+      </a>
+      <a href="journal.html" class="nav-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <span>Journal</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="scripts/data.js"></script>
+  <script>
+    let currentTab = 'pending';
+
+    const taskIcons = {
+      water: '💧', fertilize: '✨', prune: '✂️', repot: '📦'
+    };
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      const today = new Date();
+      const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+      if (d.toDateString() === today.toDateString()) return 'Today';
+      if (d.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+      if (d < today) return 'Overdue';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function isOverdue(dateStr) {
+      const d = new Date(dateStr);
+      const today = new Date();
+      return d < today && d.toDateString() !== today.toDateString();
+    }
+
+    function renderTasks() {
+      const tasks = getTasks();
+      const pending = tasks.filter(t => !t.completed);
+      const completed = tasks.filter(t => t.completed);
+
+      document.getElementById('pendingCount').textContent = pending.length;
+      document.getElementById('completedCount').textContent = completed.length;
+      document.getElementById('taskCount').textContent =
+        `${pending.length} pending task${pending.length !== 1 ? 's' : ''}`;
+
+      const list = currentTab === 'pending' ? pending : completed;
+      const sorted = [...list].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+      const container = document.getElementById('taskList');
+      if (!sorted.length) {
+        container.innerHTML = `<div class="empty-card">
+          <div class="empty-emoji">${currentTab === 'pending' ? '✅' : '📋'}</div>
+          <p>${currentTab === 'pending' ? 'All caught up! No pending tasks.' : 'No completed tasks yet.'}</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = sorted.map(task => {
+        const overdue = isOverdue(task.dueDate);
+        const badgeClass = overdue ? 'badge-danger' : 'badge-secondary';
+        return `<div class="task-card ${task.completed ? 'task-done' : ''}">
+          <button class="task-toggle" onclick="toggleTask('${task.id}', ${!task.completed})">
+            ${task.completed
+              ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+              : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>'
+            }
+          </button>
+          <div class="task-body">
+            <div class="task-header">
+              <div>
+                <p class="task-plant ${task.completed ? 'line-through' : ''}">${task.plantName}</p>
+                <p class="task-type">${taskIcons[task.type] || '🌱'} ${task.type.charAt(0).toUpperCase() + task.type.slice(1)}</p>
+              </div>
+              <span class="badge ${badgeClass}">${formatDate(task.dueDate)}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleTask(id, completed) {
+      updateTask(id, { completed });
+      renderTasks();
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabPending').classList.toggle('active', tab === 'pending');
+      document.getElementById('tabCompleted').classList.toggle('active', tab === 'completed');
+      renderTasks();
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
