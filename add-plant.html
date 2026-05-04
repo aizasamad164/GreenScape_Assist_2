@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Plant – GreenScape Assist</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="app-page">
+
+  <div class="app-shell">
+    <header class="app-header app-header--green">
+      <div class="header-inner">
+        <a href="garden.html" class="icon-btn icon-btn--white" aria-label="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        </a>
+        <h1 class="header-title header-title--white">Add New Plant</h1>
+        <div style="width:36px"></div>
+      </div>
+    </header>
+
+    <main class="main-scroll">
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-label" for="name">Plant Name <span class="required">*</span></label>
+          <input class="form-input" type="text" id="name" placeholder="e.g., Sunny, Monty" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="species">Species <span class="required">*</span></label>
+          <input class="form-input" type="text" id="species" placeholder="e.g., Monstera Deliciosa, Basil" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="image">Image URL <span class="optional">(optional)</span></label>
+          <input class="form-input" type="url" id="image" placeholder="https://example.com/plant.jpg" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="wateringFrequency">Watering Frequency <span class="required">*</span></label>
+          <select class="form-input form-select" id="wateringFrequency">
+            <option value="1">Daily</option>
+            <option value="2">Every 2 days</option>
+            <option value="3">Every 3 days</option>
+            <option value="7" selected>Weekly</option>
+            <option value="14">Every 2 weeks</option>
+            <option value="21">Every 3 weeks</option>
+            <option value="30">Monthly</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sunlight">Sunlight Requirements <span class="required">*</span></label>
+          <select class="form-input form-select" id="sunlight">
+            <option value="full">Full Sun (6+ hours)</option>
+            <option value="partial" selected>Partial Sun (3-6 hours)</option>
+            <option value="shade">Shade (Less than 3 hours)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="location">Location <span class="required">*</span></label>
+          <input class="form-input" type="text" id="location" placeholder="e.g., Living room windowsill" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="notes">Care Notes <span class="optional">(optional)</span></label>
+          <textarea class="form-input form-textarea" id="notes" placeholder="Any special care instructions or observations..." rows="4"></textarea>
+        </div>
+
+        <div class="btn-row mt-4">
+          <button class="btn-primary flex-1" onclick="submitPlant()">Add Plant</button>
+          <a href="garden.html" class="btn-outline flex-1 text-center">Cancel</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="scripts/data.js"></script>
+  <script>
+    function submitPlant() {
+      const name = document.getElementById('name').value.trim();
+      const species = document.getElementById('species').value.trim();
+      const location = document.getElementById('location').value.trim();
+
+      if (!name || !species || !location) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      const plant = {
+        id: Date.now().toString(),
+        name,
+        species,
+        image: document.getElementById('image').value.trim() ||
+          'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
+        wateringFrequency: parseInt(document.getElementById('wateringFrequency').value),
+        sunlight: document.getElementById('sunlight').value,
+        location,
+        notes: document.getElementById('notes').value.trim(),
+        lastWatered: new Date().toISOString(),
+      };
+
+      addPlant(plant);
+      showToast(`${name} added to your garden! 🌱`);
+      setTimeout(() => window.location.href = 'garden.html', 900);
+    }
+  </script>
+</body>
+</html>
