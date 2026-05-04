@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenScape Assist – Where Gardens Flourish</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="welcome-page">
+
+  <div class="welcome-bg">
+    <div class="leaf-pattern"></div>
+  </div>
+
+  <main class="welcome-container">
+    <div class="welcome-content">
+      <div class="logo-circle">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+        </svg>
+      </div>
+
+      <h1 class="welcome-title">GreenScape<br>Assist</h1>
+      <p class="welcome-tagline">Where gardens flourish</p>
+
+      <div class="welcome-features">
+        <div class="feature-pill">🌿 Track Plants</div>
+        <div class="feature-pill">💧 Watering Tasks</div>
+        <div class="feature-pill">📖 Garden Journal</div>
+      </div>
+
+      <a href="garden.html" class="btn-primary btn-large" onclick="localStorage.setItem('hasVisited','true')">
+        Get Started
+      </a>
+    </div>
+  </main>
+
+  <script>
+    if (localStorage.getItem('hasVisited')) {
+      window.location.href = 'garden.html';
+    }
+  </script>
+</body>
+</html>
