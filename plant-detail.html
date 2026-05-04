@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plant Detail – GreenScape Assist</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="app-page">
+
+  <div class="app-shell">
+    <main class="main-scroll no-header">
+      <!-- Hero Image -->
+      <div class="detail-hero" id="heroArea">
+        <img id="plantHeroImg" src="" alt="" class="detail-hero-img" />
+        <a href="garden.html" class="back-btn" aria-label="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        </a>
+        <button class="delete-btn" id="deleteBtn" aria-label="Delete plant">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+
+      <!-- Info Card -->
+      <div class="detail-card">
+        <div id="plantInfo"></div>
+
+        <button class="btn-primary btn-full mt-4" id="waterBtn">
+          💧 Water Now
+        </button>
+      </div>
+
+      <!-- Notes Card -->
+      <div class="detail-card mt-3" id="notesCard">
+        <h3 class="card-section-title">Care Notes</h3>
+        <p id="plantNotes" class="notes-text"></p>
+      </div>
+
+      <!-- Delete Confirm -->
+      <div class="delete-confirm hidden" id="deleteConfirm">
+        <p>Are you sure you want to remove this plant?</p>
+        <div class="btn-row mt-3">
+          <button class="btn-danger flex-1" id="confirmDeleteBtn">Delete</button>
+          <button class="btn-outline flex-1" onclick="document.getElementById('deleteConfirm').classList.add('hidden')">Cancel</button>
+        </div>
+      </div>
+
+      <div style="height: 30px;"></div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <a href="garden.html" class="nav-item active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Garden</span>
+      </a>
+      <a href="tasks.html" class="nav-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Tasks</span>
+      </a>
+      <a href="journal.html" class="nav-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <span>Journal</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="scripts/data.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const plant = getPlants().find(p => p.id === id);
+
+    if (!plant) {
+      document.getElementById('plantInfo').innerHTML = '<p>Plant not found.</p>';
+    } else {
+      document.getElementById('plantHeroImg').src = plant.image;
+      document.getElementById('plantHeroImg').alt = plant.name;
+
+      const last = new Date(plant.lastWatered);
+      const next = new Date(last);
+      next.setDate(next.getDate() + plant.wateringFrequency);
+      const daysUntil = Math.ceil((next - new Date()) / 86400000);
+      const overdueHTML = daysUntil <= 1 ? '<span class="badge badge-danger">' + (daysUntil === 0 ? 'Today' : 'Overdue') + '</span>' : '';
+
+      const sunMap = { full: 'Full Sun (6+ hrs)', partial: 'Partial Sun (3-6 hrs)', shade: 'Shade (<3 hrs)' };
+
+      document.getElementById('plantInfo').innerHTML = `
+        <h2 class="detail-name">${plant.name}</h2>
+        <p class="detail-species">${plant.species}</p>
+        <div class="detail-stats">
+          <div class="stat-row">
+            <div class="stat-icon stat-blue">💧</div>
+            <div class="stat-body">
+              <div class="stat-label">Watering</div>
+              <div class="stat-value">Every ${plant.wateringFrequency} day${plant.wateringFrequency !== 1 ? 's' : ''}</div>
+            </div>
+            ${overdueHTML}
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon stat-amber">☀️</div>
+            <div class="stat-body">
+              <div class="stat-label">Sunlight</div>
+              <div class="stat-value">${sunMap[plant.sunlight] || plant.sunlight}</div>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon stat-green">📍</div>
+            <div class="stat-body">
+              <div class="stat-label">Location</div>
+              <div class="stat-value">${plant.location}</div>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon stat-purple">📅</div>
+            <div class="stat-body">
+              <div class="stat-label">Last Watered</div>
+              <div class="stat-value">${last.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('plantNotes').textContent = plant.notes || 'No notes yet.';
+
+      document.getElementById('waterBtn').onclick = () => {
+        updatePlant(id, { lastWatered: new Date().toISOString() });
+        showToast(`${plant.name} has been watered! 💧`);
+        setTimeout(() => location.reload(), 800);
+      };
+
+      document.getElementById('deleteBtn').onclick = () => {
+        document.getElementById('deleteConfirm').classList.toggle('hidden');
+      };
+
+      document.getElementById('confirmDeleteBtn').onclick = () => {
+        deletePlant(id);
+        showToast(`${plant.name} removed from garden`);
+        setTimeout(() => window.location.href = 'garden.html', 800);
+      };
+    }
+  </script>
+</body>
+</html>
